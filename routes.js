@@ -5,6 +5,19 @@ var User = require("./models/user");
 
 var router = express.Router();
 
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		next();
+	} else {
+		req.flash("info", "You must be logged to see this page.");
+		res.redirect("/login");
+	}
+}
+
+router.get("/edit", ensureAuthenticated, function (req, res) {
+	res.render("edit");
+});
+
 router.use(function (req, res, next) {
 	res.locals.currentUser = req.user;
 	res.locals.errors = req.flash("error");
