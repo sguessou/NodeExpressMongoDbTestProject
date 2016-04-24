@@ -29,6 +29,12 @@ router.get("/login", function (req, res) {
 	res.render("login");
 });
 
+router.post("/login", passport.authenticate("login", {
+	successRedirect: "/",
+	failureRedirect: "/login",
+	failureFlash: true 
+}));
+
 router.post("/signup", function (req, res, next) {
 	var username = req.body.username;
 	var password = req.body.password;
