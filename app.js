@@ -6,11 +6,14 @@ var cookieParser = require("cookie-parser");
 var session = require("express-session");
 var flash = require("connect-flash");
 
+var setUpPassport = require("./setuppassport");
+
 var routes = require("./routes");
 
 var app = express();
 
 mongoose.connect("mongodb://localhost:27017/test");
+setUpPassport();
 
 app.set("port", process.env.PORT || 3000);
 
@@ -27,6 +30,9 @@ app.use(session({
 
 app.use(flash());
 app.use(routes);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.listen(app.get("port"), function () {
 	console.log("Server started on port " + app.get("port"));
