@@ -14,15 +14,28 @@ function ensureAuthenticated(req, res, next) {
 	}
 }
 
-router.get("/edit", ensureAuthenticated, function (req, res) {
-	res.render("edit");
-});
-
 router.use(function (req, res, next) {
 	res.locals.currentUser = req.user;
 	res.locals.errors = req.flash("error");
 	res.locals.infos = req.flash("info");
 	next();
+});
+
+router.get("/edit", ensureAuthenticated, function (req, res) {
+	res.render("edit");
+});
+
+router.post("/edit", ensureAuthenticated, function (req, res, next) {
+	req.user.displayName = req.body.displayName;
+	req.user.bio = req.body.bio;
+	req.user.save(function (err) {
+		if (err) {
+			next(err);
+			return;
+		}
+		req.flash("info", "Profile updated!");
+		res.redirect("/edit");
+	});
 });
 
 router.get("/", function (req, res, next) {
@@ -32,10 +45,6 @@ router.get("/", function (req, res, next) {
 			if (err) { return next(err); }
 			res.render("index", { users: users });
 		});
-});
-
-router.get("/signup", function (req, res) {
-	res.render("signup");
 });
 
 router.get("/login", function (req, res) {
@@ -48,9 +57,14 @@ router.post("/login", passport.authenticate("login", {
 	failureFlash: true 
 }));
 
-route.get("/logout", function (req, res) {
+router.get("/logout", function (req, res) {
 	req.logout();
 	res.redirect("/");
+});
+
+
+router.get("/signup", function (req, res) {
+	res.render("signup");
 });
 
 router.post("/signup", function (req, res, next) {
